@@ -1,21 +1,23 @@
 #cert #prod
 env: "qual"
 
-cors_allowed_origins: "http://localhost:3000"
-
 http_server:
   address: "localhost:8082"
 
-db_type: "postgres" # change to "sqlite" later if needed
-
-postgres:
+db:
   host: "localhost"
   port: 5432
   user: "postgres"
   password: "m"
-  dbname: "studentdb"
+  dbname: "vpro"
   sslmode: "disable"
 
-max_idle_conns: 25
-conn_max_lifetime: 300
-conn_max_idle_time: 300
+jwt:
+  secret: "supersecretjwtkey"
+  expires_in: 3600
+
+cors_allowed_origins: "http://localhost:3000"
+
+db_max_idle_conns: 25
+db_conn_max_lifetime: 300
+db_conn_max_idle_time: 300

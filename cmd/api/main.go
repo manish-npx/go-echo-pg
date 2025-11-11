@@ -33,6 +33,8 @@ func main() {
 		Handler: e,
 	}
 
+	slog.Info("✅ Main file started")
+
 	// 🧩 Choose database based on config
 
 	// Channel for graceful shutdown

@@ -6,69 +6,60 @@ import (
 	"log"
 	"os"
 
-	"github.com/ory/viper"
+	"github.com/spf13/viper"
 )
 
-type HttpServer struct {
-	Addr string `yaml:"address" env:"HTTP_ADDRESS" env-required:"true"`
+type HTTPServer struct {
+	Address string `mapstructure:"address"`
 }
 
-type Postgres struct {
-	Host     string `yaml:"host" env:"PG_HOST" env-required:"true"`
-	Port     int    `yaml:"port" env:"PG_PORT" env-required:"true"`
-	User     string `yaml:"user" env:"PG_USER" env-required:"true"`
-	Password string `yaml:"password" env:"PG_PASSWORD" env-required:"true"`
-	DBName   string `yaml:"dbname" env:"PG_DBNAME" env-required:"true"`
-	SSLMode  string `yaml:"sslmode" env:"PG_SSLMODE" env-default:"disable"`
+type DBConfig struct {
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	User     string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
+	DBName   string `mapstructure:"dbname"`
+	SSLMode  string `mapstructure:"sslmode"`
+}
+
+type JWTConfig struct {
+	Secret    string `mapstructure:"secret"`
+	ExpiresIn int    `mapstructure:"expires_in"`
 }
 
 type Config struct {
 	Env                string     `mapstructure:"env"`
+	HTTPServer         HTTPServer `mapstructure:"http_server"`
+	DB                 DBConfig   `mapstructure:"db"`
+	JWT                JWTConfig  `mapstructure:"jwt"`
 	CORSAllowedOrigins string     `mapstructure:"cors_allowed_origins"`
-	DBType             string     `mapstructure:"db_type"`
-	HTTPServer         HttpServer `mapstructure:"http_server"`
-	Postgres           Postgres   `mapstructure:"postgres"`
-	MaxIdleConns       int        `mapstructure:"max_idle_conns"`
-	ConnMaxLifetime    int        `mapstructure:"conn_max_lifetime"`
-	ConnMaxIdleTime    int        `mapstructure:"conn_max_idle_time"`
+	DBMaxIdleConns     int        `mapstructure:"db_max_idle_conns"`
+	DBConnMaxLifetime  int        `mapstructure:"db_conn_max_lifetime"`
+	DBConnMaxIdleTime  int        `mapstructure:"db_conn_max_idle_time"`
 }
 
 func MustLoad() *Config {
-
-	v := viper.New()
-	v.SetConfigName("local")
-	v.SetConfigType("yaml")
-	v.AddConfigPath("./config")
-
-	var cfg Config
-	configPath := os.Getenv("CONFIG_PATH")
-	flag.StringVar(&configPath, "config", "./config/local.yaml", "Path to configuration file")
+	var configPath string
+	flag.StringVar(&configPath, "config", "./config/local.yaml", "Path to config file")
 	flag.Parse()
 
-	if configPath == "" {
-		flags := flag.String("config", "", "Path to configuration file")
-		flag.Parse()
-
-		configPath = *flags
-
-		if configPath == "" {
-			log.Fatal("Config Path not available")
-		}
-	}
-
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		log.Fatalf("config file does not exits: %s", configPath)
+		log.Fatalf("config file does not exist: %s", configPath)
 	}
+
+	v := viper.New()
+	v.SetConfigFile(configPath)
+	v.SetConfigType("yaml")
 
 	if err := v.ReadInConfig(); err != nil {
-		log.Fatalf("❌ Error reading config file: %v", err)
+		log.Fatalf("failed to read config: %v", err)
 	}
 
+	var cfg Config
 	if err := v.Unmarshal(&cfg); err != nil {
-		log.Fatalf("❌ Unable to decode config: %v", err)
+		log.Fatalf("failed to unmarshal config: %v", err)
 	}
 
-	fmt.Printf("✅ Config loaded for %s\n", cfg.Env)
+	fmt.Printf("✅ config loaded (%s)\n", cfg.Env)
 	return &cfg
-
 }
