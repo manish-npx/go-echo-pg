@@ -196,7 +196,7 @@ func customHTTPErrorHandler(err error, c echo.Context) {
 		if c.Request().Method == http.MethodHead {
 			err = c.NoContent(code)
 		} else {
-			err = c.JSON(code, map[string]interface{}{
+			err = c.JSON(code, map[string]any{
 				"success": false,
 				"error":   message,
 			})

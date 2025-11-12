@@ -9,12 +9,12 @@ import (
 )
 
 type Config struct {
-	Env     string `mapstructure:"env"`
-	Server  ServerConfig
-	DB      DBConfig
-	JWT     JWTConfig
-	CORS    CORSConfig
-	Logging LoggingConfig
+	Env     string        `mapstructure:"env"`
+	Server  ServerConfig  `mapstructure:"http_server"`
+	DB      DBConfig      `mapstructure:"db"`
+	JWT     JWTConfig     `mapstructure:"jwt"`
+	CORS    CORSConfig    `mapstructure:"cors"`
+	Logging LoggingConfig `mapstructure:"logging"`
 }
 
 type ServerConfig struct {
