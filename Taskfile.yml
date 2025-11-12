@@ -4,12 +4,15 @@ env:
   APP_NAME: "go-echo-pg"
   BIN_PATH: "./bin"
 
+  vars:
+  EXE_EXT: '{{if eq OS "windows"}}.exe{{else}}{{end}}'
+
 tasks:
   # Development
   dev:
     desc: "Run development server with hot reload"
     cmds:
-      - air
+      - air -c .air.toml
 
   run:
     desc: "Run the application"

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -32,6 +33,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return h.response.BadRequest(c, "Invalid request format", err)
 	}
 
+	fmt.Println("req =================================>", req)
 	if err := c.Validate(req); err != nil {
 		return h.response.ValidationError(c, err.Error(), err)
 	}
