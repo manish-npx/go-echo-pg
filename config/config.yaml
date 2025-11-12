@@ -1,0 +1,28 @@
+#cert #prod
+env: "qual"
+
+http_server:
+  address: "localhost:8082"
+
+db:
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "m"
+  dbname: "vpro"
+  sslmode: "disable"
+  max_conns: 25
+  min_conns: 5
+  max_conn_lifetime: "1h"
+  max_conn_idle_time: "30m"
+
+jwt:
+  secret: "yoursecretkey"
+  expires_in: 3600
+
+cors:
+  allowed_origins: "http://localhost:3000"
+
+logging:
+  level: "debug"
+  format: "json"

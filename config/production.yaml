@@ -1,0 +1,23 @@
+env: "production"
+
+http_server:
+  address: ":8080"
+
+db:
+  host: "${DB_HOST}"
+  port: 5432
+  user: "${DB_USER}"
+  password: "${DB_PASSWORD}"
+  dbname: "${DB_NAME}"
+  sslmode: "require"
+
+jwt:
+  secret: "${JWT_SECRET}"
+  expires_in: 3600
+
+cors:
+  allowed_origins: "https://yourapp.com"
+
+logging:
+  level: "info"
+  format: "json"

@@ -1,0 +1,90 @@
+version: "3"
+
+env:
+  APP_NAME: "go-echo-pg"
+  BIN_PATH: "./bin"
+
+tasks:
+  # Development
+  dev:
+    desc: "Run development server with hot reload"
+    cmds:
+      - air
+
+  run:
+    desc: "Run the application"
+    cmds:
+      - go run cmd/server/main.go
+
+  run-local:
+    desc: "Run with local config"
+    cmds:
+      - go run cmd/server/main.go --config ./config/local.yaml
+
+  # Database
+  db-setup:
+    desc: "Setup database (create and run migrations)"
+    cmds:
+      - psql -h localhost -U postgres -f scripts/setup-database.sql
+
+  db-migrate:
+    desc: "Run database migrations"
+    cmds:
+      - migrate -path ./migrations -database "postgres://postgres:m@localhost:5432/vpro?sslmode=disable" up
+
+  db-reset:
+    desc: "Reset database"
+    cmds:
+      - psql -h localhost -U postgres -c "DROP DATABASE IF EXISTS vpro;"
+      - task: db-setup
+
+  # Code Quality
+  lint:
+    desc: "Run linter"
+    cmds:
+      - golangci-lint run ./...
+
+  format:
+    desc: "Format code"
+    cmds:
+      - gofmt -w .
+      - goimports -w .
+
+  test:
+    desc: "Run tests"
+    cmds:
+      - go test -v -race ./...
+
+  # Build
+  build:
+    desc: "Build application"
+    cmds:
+      - go build -o {{.BIN_PATH}}/{{.APP_NAME}} cmd/server/main.go
+
+  build-prod:
+    desc: "Build production binary"
+    cmds:
+      - CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-w -s" -o {{.BIN_PATH}}/{{.APP_NAME}} cmd/server/main.go
+
+  # Setup
+  setup:
+    desc: "Setup development environment"
+    cmds:
+      - go mod download
+      - go install github.com/air-verse/air@latest
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - go install github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+  # Clean
+  clean:
+    desc: "Clean build artifacts"
+    cmds:
+      - rm -rf {{.BIN_PATH}}/ coverage.out coverage.html
+
+  # All-in-one setup
+  init:
+    desc: "Initialize project (database setup + dependencies)"
+    cmds:
+      - task: setup
+      - task: db-setup
+      - echo "✅ Project initialized successfully!"
